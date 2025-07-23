@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpareParts Pro - Complete Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+        .product-image { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .admin-panel { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Header -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold text-blue-600 cursor-pointer" onclick="showPage('home')">
+                        <i class="fas fa-cog mr-2"></i>SpareParts Pro
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#" onclick="showPage('home')" class="nav-link text-gray-700 hover:text-blue-600">Home</a>
+                    <a href="#" onclick="showPage('products')" class="nav-link text-gray-700 hover:text-blue-600">Products</a>
+                    <a href="#" onclick="showPage('categories')" class="nav-link text-gray-700 hover:text-blue-600">Categories</a>
+                    <a href="#" onclick="showPage('about')" class="nav-link text-gray-700 hover:text-blue-600">About</a>
+                    <a href="#" onclick="showPage('contact')" class="nav-link text-gray-700 hover:text-blue-600">Contact</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button onclick="showPage('cart')" class="text-gray-700 hover:text-blue-600 relative">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">0</span>
+                        </button>
+                    </div>
+                    <button onclick="showPage('login')" id="auth-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Login</button>
+                    <button onclick="showPage('admin')" class="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 text-sm">Admin</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active">
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h1 class="text-5xl font-bold mb-6">Premium Spare Parts</h1>
+                <p class="text-xl mb-8">Find quality automotive and machinery parts with fast delivery</p>
+                <button onclick="showPage('products')" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    Shop Now
+                </button>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="py-16">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Featured Products</h2>
+                <div id="featured-products" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Featured products will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="bg-white py-16">
+            <div class="max-w-7xl mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12">Shop by Category</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div onclick="filterByCategory('engine')" class="bg-blue-100 p-6 rounded-lg text-center cursor-pointer hover:bg-blue-200 transition">
+                        <i class="fas fa-engine text-4xl text-blue-600 mb-4"></i>
+                        <h3 class="font-semibold">Engine Parts</h3>
+                    </div>
+                    <div onclick="filterByCategory('brake')" class="bg-red-100 p-6 rounded-lg text-center cursor-pointer hover:bg-red-200 transition">
+                        <i class="fas fa-brake-warning text-4xl text-red-600 mb-4"></i>
+                        <h3 class="font-semibold">Brake System</h3>
+                    </div>
+                    <div onclick="filterByCategory('electrical')" class="bg-yellow-100 p-6 rounded-lg text-center cursor-pointer hover:bg-yellow-200 transition">
+                        <i class="fas fa-bolt text-4xl text-yellow-600 mb-4"></i>
+                        <h3 class="font-semibold">Electrical</h3>
+                    </div>
+                    <div onclick="filterByCategory('suspension')" class="bg-green-100 p-6 rounded-lg text-center cursor-pointer hover:bg-green-200 transition">
+                        <i class="fas fa-car text-4xl text-green-600 mb-4"></i>
+                        <h3 class="font-semibold">Suspension</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Products Listing Page -->
+    <div id="products-page" class="page">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Filters Sidebar -->
+                <div class="lg:w-1/4">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold mb-4">Filters</h3>
+                        
+                        <!-- Search -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Search</label>
+                            <input type="text" id="search-input" placeholder="Search products..." 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   onkeyup="filterProducts()">
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Category</label>
+                            <select id="category-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg" onchange="filterProducts()">
+                                <option value="">All Categories</option>
+                                <option value="engine">Engine Parts</option>
+                                <option value="brake">Brake System</option>
+                                <option value="electrical">Electrical</option>
+                                <option value="suspension">Suspension</option>
+                            </select>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Price Range</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="min-price" placeholder="Min" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg" onchange="filterProducts()">
+                                <input type="number" id="max-price" placeholder="Max" class="w-1/2 px-3 py-2 border border-gray-300 rounded-lg" onchange="filterProducts()">
+                            </div>
+                        </div>
+
+                        <!-- Brand Filter -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Brand</label>
+                            <div id="brand-filter" class="space-y-2">
+                                <!-- Brand checkboxes will be populated -->
+                            </div>
+                        </div>
+
+                        <button onclick="clearFilters()" class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300">
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="lg:w-3/4">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <span id="products-count">0</span> products found
+                        </div>
+                        <select id="sort-select" class="px-3 py-2 border border-gray-300 rounded-lg" onchange="sortProducts()">
+                            <option value="name-asc">Name A-Z</option>
+                            <option value="name-desc">Name Z-A</option>
+                            <option value="price-asc">Price Low to High</option>
+                            <option value="price-desc">Price High to Low</option>
+                        </select>
+                    </div>
+
+                    <div id="products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Products will be loaded here -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="pagination" class="flex justify-center mt-8">
+                        <!-- Pagination will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Detail Page -->
+    <div id="product-detail-page" class="page">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div id="product-detail-content">
+                <!-- Product details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Page -->
+    <div id="categories-page" class="page">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-8">Product Categories</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div onclick="filterByCategory('engine')" class="bg-white p-8 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition">
+                    <div class="text-center">
+                        <i class="fas fa-engine text-6xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Engine Parts</h3>
+                        <p class="text-gray-600 mb-4">Pistons, gaskets, filters, and more</p>
+                        <span class="text-blue-600 font-medium">View Products →</span>
+                    </div>
+                </div>
+                <div onclick="filterByCategory('brake')" class="bg-white p-8 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition">
+                    <div class="text-center">
+                        <i class="fas fa-brake-warning text-6xl text-red-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Brake System</h3>
+                        <p class="text-gray-600 mb-4">Brake pads, discs, calipers</p>
+                        <span class="text-red-600 font-medium">View Products →</span>
+                    </div>
+                </div>
+                <div onclick="filterByCategory('electrical')" class="bg-white p-8 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition">
+                    <div class="text-center">
+                        <i class="fas fa-bolt text-6xl text-yellow-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Electrical</h3>
+                        <p class="text-gray-600 mb-4">Batteries, alternators, starters</p>
+                        <span class="text-yellow-600 font-medium">View Products →</span>
+                    </div>
+                </div>
+                <div onclick="filterByCategory('suspension')" class="bg-white p-8 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition">
+                    <div class="text-center">
+                        <i class="fas fa-car text-6xl text-green-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Suspension</h3>
+                        <p class="text-gray-600 mb-4">Shocks, struts, springs</p>
+                        <span class="text-green-600 font-medium">View Products →</span>
+                    </div>
+                </div>
+                <div onclick="filterByCategory('transmission')" class="bg-white p-8 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition">
+                    <div class="text-center">
+                        <i class="fas fa-cogs text-6xl text-purple-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Transmission</h3>
+                        <p class="text-gray-600 mb-4">Gears, clutches, fluids</p>
+                        <span class="text-purple-600 font-medium">View Products →</span>
+                    </div>
+                </div>
+                <div onclick="filterByCategory('body')" class="bg-white p-8 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition">
+                    <div class="text-center">
+                        <i class="fas fa-car-side text-6xl text-indigo-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Body Parts</h3>
+                        <p class="text-gray-600 mb-4">Panels, mirrors, lights</p>
+                        <span class="text-indigo-600 font-medium">View Products →</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Page -->
+    <div id="cart-page" class="page">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-8">Shopping Cart</h1>
+            <div id="cart-content">
+                <div id="cart-items"></div>
+                <div id="cart-summary" class="mt-8"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login/Account Page -->
+    <div id="login-page" class="page">
+        <div class="max-w-md mx-auto px-4 py-16">
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <div id="login-form">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Login to Your Account</h2>
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Email</label>
+                            <input type="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Password</label>
+                            <input type="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">Login</button>
+                    </form>
+                    <p class="text-center mt-4">
+                        Don't have an account? 
+                        <a href="#" onclick="showRegister()" class="text-blue-600 hover:underline">Register here</a>
+                    </p>
+                </div>
+
+                <div id="register-form" style="display: none;">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Create Account</h2>
+                    <form onsubmit="handleRegister(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Full Name</label>
+                            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Email</label>
+                            <input type="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Password</label>
+                            <input type="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">Register</button>
+                    </form>
+                    <p class="text-center mt-4">
+                        Already have an account? 
+                        <a href="#" onclick="showLogin()" class="text-blue-600 hover:underline">Login here</a>
+                    </p>
+                </div>
+
+                <div id="account-dashboard" style="display: none;">
+                    <h2 class="text-2xl font-bold mb-6 text-center">Account Dashboard</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <h3 class="font-semibold">Welcome back!</h3>
+                            <p id="user-email" class="text-gray-600"></p>
+                        </div>
+                        <button onclick="showPage('products')" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                            Continue Shopping
+                        </button>
+                        <button onclick="logout()" class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-page" class="page">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="admin-panel p-1 rounded-lg mb-8">
+                <div class="bg-white p-8 rounded-lg">
+                    <h1 class="text-3xl font-bold mb-8 text-purple-800">Admin Management Panel</h1>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-purple-100 p-6 rounded-lg text-center">
+                            <i class="fas fa-box text-4xl text-purple-600 mb-4"></i>
+                            <h3 class="text-xl font-semibold">Total Products</h3>
+                            <p id="total-products" class="text-3xl font-bold text-purple-600">0</p>
+                        </div>
+                        <div class="bg-green-100 p-6 rounded-lg text-center">
+                            <i class="fas fa-shopping-cart text-4xl text-green-600 mb-4"></i>
+                            <h3 class="text-xl font-semibold">Total Orders</h3>
+                            <p class="text-3xl font-bold text-green-600">42</p>
+                        </div>
+                        <div class="bg-blue-100 p-6 rounded-lg text-center">
+                            <i class="fas fa-users text-4xl text-blue-600 mb-4"></i>
+                            <h3 class="text-xl font-semibold">Total Users</h3>
+                            <p class="text-3xl font-bold text-blue-600">156</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border rounded-lg p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold">Product Management</h2>
+                            <button onclick="showAddProduct()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                                <i class="fas fa-plus mr-2"></i>Add Product
+                            </button>
+                        </div>
+
+                        <div id="admin-products-list" class="overflow-x-auto">
+                            <!-- Admin products table will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Product Modal -->
+        <div id="product-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="bg-white p-8 rounded-lg max-w-2xl w-full">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 id="modal-title" class="text-2xl font-bold">Add New Product</h3>
+                        <button onclick="closeProductModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="product-form" onsubmit="saveProduct(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Product Name</label>
+                                <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Category</label>
+                                <select name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                    <option value="">Select Category</option>
+                                    <option value="engine">Engine Parts</option>
+                                    <option value="brake">Brake System</option>
+                                    <option value="electrical">Electrical</option>
+                                    <option value="suspension">Suspension</option>
+                                    <option value="transmission">Transmission</option>
+                                    <option value="body">Body Parts</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Brand</label>
+                                <input type="text" name="brand" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Price ($)</label>
+                                <input type="number" name="price" step="0.01" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Stock Quantity</label>
+                                <input type="number" name="stock" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Part Number</label>
+                                <input type="text" name="partNumber" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium mb-2">Description</label>
+                            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
+                        </div>
+                        <div class="flex gap-4 mt-6">
+                            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
+                                Save Product
+                            </button>
+                            <button type="button" onclick="closeProductModal()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" class="page">
+        <div class="max-w-4xl mx-auto px-4 py-16">
+            <h1 class="text-4xl font-bold text-center mb-8">About SpareParts Pro</h1>
+            <div class="prose max-w-none">
+                <div class="bg-white p-8 rounded-lg shadow-md mb-8">
+                    <h2 class="text-2xl font-bold mb-4">Our Story</h2>
+                    <p class="text-gray-600 mb-4">
+                        Founded in 2020, SpareParts Pro has become a leading supplier of high-quality automotive and machinery spare parts. 
+                        We understand the importance of reliable parts for keeping your vehicles and equipment running smoothly.
+                    </p>
+                    <p class="text-gray-600">
+                        Our commitment to quality, competitive pricing, and exceptional customer service has made us the trusted choice 
+                        for mechanics, fleet operators, and vehicle owners worldwide.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-blue-50 p-6 rounded-lg text-center">
+                        <i class="fas fa-truck text-4xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Fast Shipping</h3>
+                        <p class="text-gray-600">Next-day delivery available on most orders</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg text-center">
+                        <i class="fas fa-shield-alt text-4xl text-green-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Quality Guarantee</h3>
+                        <p class="text-gray-600">All parts come with manufacturer warranty</p>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-lg text-center">
+                        <i class="fas fa-headset text-4xl text-purple-600 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Expert Support</h3>
+                        <p class="text-gray-600">Technical assistance from our team</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Why Choose Us?</h2>
+                    <ul class="space-y-2">
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3"></i>Over 50,000 parts in stock</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3"></i>Competitive pricing with price matching</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3"></i>Easy returns and exchanges</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3"></i>Secure online ordering</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-600 mr-3"></i>Bulk discounts available</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Page -->
+    <div id="contact-page" class="page">
+        <div class="max-w-4xl mx-auto px-4 py-16">
+            <h1 class="text-4xl font-bold text-center mb-8">Contact Us</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-6">Get in Touch</h2>
+                    <form onsubmit="handleContact(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Name</label>
+                            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Email</label>
+                            <input type="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2">Subject</label>
+                            <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">Message</label>
+                            <textarea rows="5" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-6">Contact Information</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt text-blue-600 w-6"></i>
+                            <div class="ml-4">
+                                <h3 class="font-semibold">Address</h3>
+                                <p class="text-gray-600">123 Industrial Blvd, Auto City, AC 12345</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-blue-600 w-6"></i>
+                            <div class="ml-4">
+                                <h3 class="font-semibold">Phone</h3>
+                                <p class="text-gray-600">+1 (555) 123-4567</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-blue-600 w-6"></i>
+                            <div class="ml-4">
+                                <h3 class="font-semibold">Email</h3>
+                                <p class="text-gray-600">info@sparepartspro.com</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-blue-600 w-6"></i>
+                            <div class="ml-4">
+                                <h3 class="font-semibold">Business Hours</h3>
+                                <p class="text-gray-600">Mon-Fri: 8AM-6PM<br>Sat: 8AM-4PM<br>Sun: Closed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-blue-600 hover:text-blue-800"><i class="fab fa-facebook text-2xl"></i></a>
+                            <a href="#" class="text-blue-400 hover:text-blue-600"><i class="fab fa-twitter text-2xl"></i></a>
+                            <a href="#" class="text-blue-700 hover:text-blue-900"><i class="fab fa-linkedin text-2xl"></i></a>
+                            <a href="#" class="text-pink-600 hover:text-pink-800"><i class="fab fa-instagram text-2xl"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let products = [];
+        let filteredProducts = [];
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let currentPage = 1;
+        let productsPerPage = 9;
+        let editingProductId = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeProducts();
+            loadFeaturedProducts();
+            updateCartCount();
+            updateAuthButton();
+            loadAdminProducts();
+        });
+
+        // Sample products data
+        function initializeProducts() {
+            const savedProducts = localStorage.getItem('products');
+            if (savedProducts) {
+                products = JSON.parse(savedProducts);
+            } else {
+                products = [
+                    {
+                        id: 1,
+                        name: "Engine Oil Filter",
+                        category: "engine",
+                        brand: "Bosch",
+                        price: 24.99,
+                        stock: 50,
+                        partNumber: "BOF-001",
+                        description: "High-quality oil filter for most automotive engines. Ensures optimal engine performance and longevity.",
+                        rating: 4.5,
+                        featured: true
+                    },
+                    {
+                        id: 2,
+                        name: "Brake Pad Set",
+                        category: "brake",
+                        brand: "Brembo",
+                        price: 89.99,
+                        stock: 25,
+                        partNumber: "BRM-002",
+                        description: "Premium brake pads offering excellent stopping power and durability. Suitable for high-performance vehicles.",
+                        rating: 4.8,
+                        featured: true
+                    },
+                    {
+                        id: 3,
+                        name: "Car Battery",
+                        category: "electrical",
+                        brand: "ACDelco",
+                        price: 129.99,
+                        stock: 15,
+                        partNumber: "ACD-003",
+                        description: "Reliable 12V automotive battery with 3-year warranty. Cold cranking amps: 650.",
+                        rating: 4.6,
+                        featured: false
+                    },
+                    {
+                        id: 4,
+                        name: "Shock Absorber",
+                        category: "suspension",
+                        brand: "Monroe",
+                        price: 64.99,
+                        stock: 30,
+                        partNumber: "MON-004",
+                        description: "Gas-charged shock absorber for improved ride comfort and handling. Fits most sedan vehicles.",
+                        rating: 4.4,
+                        featured: true
+                    },
+                    {
+                        id: 5,
+                        name: "Air Filter",
+                        category: "engine",
+                        brand: "K&N",
+                        price: 34.99,
+                        stock: 40,
+                        partNumber: "KN-005",
+                        description: "High-flow air filter for improved engine performance. Washable and reusable design.",
+                        rating: 4.7,
+                        featured: false
+                    },
+                    {
+                        id: 6,
+                        name: "Alternator",
+                        category: "electrical",
+                        brand: "Denso",
+                        price: 189.99,
+                        stock: 12,
+                        partNumber: "DEN-006",
+                        description: "High-output alternator for reliable electrical system performance. 140-amp capacity.",
+                        rating: 4.5,
+                        featured: true
+                    },
+                    {
+                        id: 7,
+                        name: "Brake Disc Rotor",
+                        category: "brake",
+                        brand: "Raybestos",
+                        price: 74.99,
+                        stock: 20,
+                        partNumber: "RAY-007",
+                        description: "Ventilated brake rotor for superior heat dissipation. Precision-machined for smooth operation.",
+                        rating: 4.3,
+                        featured: false
+                    },
+                    {
+                        id: 8,
+                        name: "Coil Spring",
+                        category: "suspension",
+                        brand: "Eibach",
+                        price: 119.99,
+                        stock: 18,
+                        partNumber: "EIB-008",
+                        description: "Progressive rate coil spring for improved handling and comfort. Reduces body roll significantly.",
+                        rating: 4.6,
+                        featured: false
+                    }
+                ];
+                localStorage.setItem('products', JSON.stringify(products));
+            }
+            filteredProducts = [...products];
+        }
+
+        // Page navigation
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Show selected page
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+                targetPage.classList.add('active');
+                
+                // Load page-specific content
+                switch(pageId) {
+                    case 'products':
+                        loadProducts();
+                        break;
+                    case 'cart':
+                        loadCart();
+                        break;
+                    case 'admin':
+                        loadAdminProducts();
+                        break;
+                }
+            }
+        }
+
+        // Load featured products on home page
+        function loadFeaturedProducts() {
+            const featuredContainer = document.getElementById('featured-products');
+            const featured = products.filter(p => p.featured).slice(0, 4);
+            
+            featuredContainer.innerHTML = featured.map(product => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                    <div class="product-image h-48 flex items-center justify-center text-white font-bold text-lg">
+                        ${product.name}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${product.brand}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">$${product.price}</span>
+                            <button onclick="addToCart(${product.id})" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load products with filters and pagination
+        function loadProducts() {
+            const productsGrid = document.getElementById('products-grid');
+            const productsCount = document.getElementById('products-count');
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const endIndex = startIndex + productsPerPage;
+            const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+            
+            productsCount.textContent = filteredProducts.length;
+            
+            productsGrid.innerHTML = paginatedProducts.map(product => `
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                    <div class="product-image h-48 flex items-center justify-center text-white font-bold text-lg cursor-pointer" 
+                         onclick="showProductDetail(${product.id})">
+                        ${product.name}
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-semibold mb-2 cursor-pointer hover:text-blue-600" onclick="showProductDetail(${product.id})">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${product.brand} • ${product.partNumber}</p>
+                        <div class="flex items-center mb-2">
+                            ${generateStars(product.rating)}
+                            <span class="text-sm text-gray-500 ml-2">(${product.rating})</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-blue-600">$${product.price}</span>
+                                <p class="text-sm text-gray-500">${product.stock} in stock</p>
+                            </div>
+                            <button onclick="addToCart(${product.id})" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                <i class="fas fa-cart-plus mr-1"></i>Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            loadPagination();
+            loadBrandFilters();
+        }
+
+        // Generate star rating
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            let stars = '';
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star text-yellow-400"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+            }
+            
+            const emptyStars = 5 - Math.ceil(rating);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star text-yellow-400"></i>';
+            }
+            
+            return stars;
+        }
+
+        // Load pagination
+        function loadPagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            if (currentPage > 1) {
+                paginationHTML += `<button onclick="changePage(${currentPage - 1})" class="px-3 py-2 mx-1 bg-white border rounded hover:bg-gray-50">Previous</button>`;
+            }
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const isActive = i === currentPage ? 'bg-blue-600 text-white' : 'bg-white border hover:bg-gray-50';
+                paginationHTML += `<button onclick="changePage(${i})" class="px-3 py-2 mx-1 ${isActive} rounded">${i}</button>`;
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                paginationHTML += `<button onclick="changePage(${currentPage + 1})" class="px-3 py-2 mx-1 bg-white border rounded hover:bg-gray-50">Next</button>`;
+            }
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            loadProducts();
+        }
+
+        // Load brand filters
+        function loadBrandFilters() {
+            const brandFilter = document.getElementById('brand-filter');
+            const brands = [...new Set(products.map(p => p.brand))];
+            
+            brandFilter.innerHTML = brands.map(brand => `
+                <label class="flex items-center">
+                    <input type="checkbox" value="${brand}" onchange="filterProducts()" class="mr-2">
+                    ${brand}
+                </label>
+            `).join('');
+        }
+
+        // Filter products
+        function filterProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const categoryFilter = document.getElementById('category-filter').value;
+            const minPrice = parseFloat(document.getElementById('min-price').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('max-price').value) || Infinity;
+            const brandCheckboxes = document.querySelectorAll('#brand-filter input[type="checkbox"]:checked');
+            const selectedBrands = Array.from(brandCheckboxes).map(cb => cb.value);
+            
+            filteredProducts = products.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
+                                    product.description.toLowerCase().includes(searchTerm) ||
+                                    product.partNumber.toLowerCase().includes(searchTerm);
+                const matchesCategory = !categoryFilter || product.category === categoryFilter;
+                const matchesPrice = product.price >= minPrice && product.price <= maxPrice;
+                const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(product.brand);
+                
+                return matchesSearch && matchesCategory && matchesPrice && matchesBrand;
+            });
+            
+            currentPage = 1;
+            loadProducts();
+        }
+
+        // Filter by category from home page
+        function filterByCategory(category) {
+            showPage('products');
+            document.getElementById('category-filter').value = category;
+            filterProducts();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('category-filter').value = '';
+            document.getElementById('min-price').value = '';
+            document.getElementById('max-price').value = '';
+            document.querySelectorAll('#brand-filter input[type="checkbox"]').forEach(cb => cb.checked = false);
+            filteredProducts = [...products];
+            currentPage = 1;
+            loadProducts();
+        }
+
+        // Sort products
+        function sortProducts() {
+            const sortValue = document.getElementById('sort-select').value;
+            
+            switch(sortValue) {
+                case 'name-asc':
+                    filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'name-desc':
+                    filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+                    break;
+                case 'price-asc':
+                    filteredProducts.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    filteredProducts.sort((a, b) => b.price - a.price);
+                    break;
+            }
+            
+            currentPage = 1;
+            loadProducts();
+        }
+
+        // Show product detail
+        function showProductDetail(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const detailContent = document.getElementById('product-detail-content');
+            detailContent.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <div class="product-image h-96 flex items-center justify-center text-white font-bold text-2xl mb-4 rounded-lg">
+                            ${product.name}
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="product-image h-24 flex items-center justify-center text-white text-sm rounded opacity-75">Thumb 1</div>
+                            <div class="product-image h-24 flex items-center justify-center text-white text-sm rounded opacity-75">Thumb 2</div>
+                            <div class="product-image h-24 flex items-center justify-center text-white text-sm rounded opacity-75">Thumb 3</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <nav class="text-sm text-gray-500 mb-4">
+                            <a href="#" onclick="showPage('home')" class="hover:text-blue-600">Home</a> > 
+                            <a href="#" onclick="showPage('products')" class="hover:text-blue-600">Products</a> > 
+                            ${product.name}
+                        </nav>
+                        
+                        <h1 class="text-3xl font-bold mb-4">${product.name}</h1>
+                        
+                        <div class="flex items-center mb-4">
+                            ${generateStars(product.rating)}
+                            <span class="text-sm text-gray-500 ml-2">(${product.rating} rating)</span>
+                        </div>
+                        
+                        <div class="text-4xl font-bold text-blue-600 mb-4">$${product.price}</div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                            <h3 class="font-semibold mb-2">Product Details</h3>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div><strong>Brand:</strong> ${product.brand}</div>
+                                <div><strong>Part Number:</strong> ${product.partNumber}</div>
+                                <div><strong>Category:</strong> ${product.category}</div>
+                                <div><strong>Stock:</strong> ${product.stock} available</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="font-semibold mb-2">Description</h3>
+                            <p class="text-gray-600">${product.description}</p>
+                        </div>
+                        
+                        <div class="flex gap-4 mb-8">
+                            <div class="flex items-center border rounded-lg">
+                                <button onclick="decreaseQuantity()" class="px-3 py-2 hover:bg-gray-100">-</button>
+                                <input type="number" id="quantity" value="1" min="1" max="${product.stock}" class="w-16 text-center border-0 focus:ring-0">
+                                <button onclick="increaseQuantity()" class="px-3 py-2 hover:bg-gray-100">+</button>
+                            </div>
+                            <button onclick="addToCartWithQuantity(${product.id})" class="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                            </button>
+                            <button class="bg-green-600 text-white px-8 py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-bolt mr-2"></i>Buy Now
+                            </button>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-4 text-center text-sm">
+                            <div class="p-3 bg-blue-50 rounded">
+                                <i class="fas fa-truck text-blue-600 mb-2 block"></i>
+                                Free Shipping
+                            </div>
+                            <div class="p-3 bg-green-50 rounded">
+                                <i class="fas fa-shield-alt text-green-600 mb-2 block"></i>
+                                Warranty
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded">
+                                <i class="fas fa-undo text-purple-600 mb-2 block"></i>
+                                Easy Returns
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-12">
+                    <h2 class="text-2xl font-bold mb-6">Related Products</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        ${getRelatedProducts(product).map(relatedProduct => `
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer" onclick="showProductDetail(${relatedProduct.id})">
+                                <div class="product-image h-32 flex items-center justify-center text-white font-bold">
+                                    ${relatedProduct.name}
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="font-semibold mb-2 text-sm">${relatedProduct.name}</h3>
+                                    <div class="text-lg font-bold text-blue-600">$${relatedProduct.price}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            showPage('product-detail');
+        }
+
+        // Get related products
+        function getRelatedProducts(product) {
+            return products
+                .filter(p => p.id !== product.id && p.category === product.category)
+                .slice(0, 4);
+        }
+
+        // Quantity controls
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            const currentValue = parseInt(quantityInput.value);
+            const maxValue = parseInt(quantityInput.max);
+            if (currentValue < maxValue) {
+                quantityInput.value = currentValue + 1;
+            }
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity');
+            const currentValue = parseInt(quantityInput.value);
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        }
+
+        // Cart functionality
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showToast(`${product.name} added to cart!`);
+        }
+
+        function addToCartWithQuantity(productId) {
+            const product = products.find(p => p.id === productId);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            if (!product) return;
+            
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({ ...product, quantity: quantity });
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            showToast(`${product.name} (${quantity}) added to cart!`);
+        }
+
+        function updateCartCount() {
+            const cartCount = document.getElementById('cart-count');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+        }
+
+        function loadCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartSummary = document.getElementById('cart-summary');
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-4"></i>
+                        <h2 class="text-2xl font-semibold text-gray-600 mb-4">Your cart is empty</h2>
+                        <button onclick="showPage('products')" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                            Continue Shopping
+                        </button>
+                    </div>
+                `;
+                cartSummary.innerHTML = '';
+                return;
+            }
+            
+            cartItems.innerHTML = cart.map(item => `
+                <div class="bg-white p-6 rounded-lg shadow-md mb-4">
+                    <div class="flex items-center gap-4">
+                        <div class="product-image w-20 h-20 flex items-center justify-center text-white text-xs rounded">
+                            ${item.name.substring(0, 10)}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold">${item.name}</h3>
+                            <p class="text-gray-600 text-sm">${item.brand} • ${item.partNumber}</p>
+                            <p class="text-lg font-bold text-blue-600">$${item.price}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateCartQuantity(${item.id}, ${item.quantity - 1})" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">-</button>
+                            <span class="px-3 py-1 bg-gray-100 rounded">${item.quantity}</span>
+                            <button onclick="updateCartQuantity(${item.id}, ${item.quantity + 1})" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">+</button>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold">$${(item.price * item.quantity).toFixed(2)}</p>
+                            <button onclick="removeFromCart(${item.id})" class="text-red-600 hover:text-red-800 text-sm">
+                                <i class="fas fa-trash mr-1"></i>Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+            
+            cartSummary.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4">Order Summary</h2>
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span>$${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Tax:</span>
+                            <span>$${tax.toFixed(2)}</span>
+                        </div>
+                        <div class="flex justify-between text-xl font-bold border-t pt-2">
+                            <span>Total:</span>
+                            <span>$${total.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <button onclick="checkout()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold">
+                        <i class="fas fa-credit-card mr-2"></i>Proceed to Checkout
+                    </button>
+                </div>
+            `;
+        }
+
+        function updateCartQuantity(productId, newQuantity) {
+            if (newQuantity <= 0) {
+                removeFromCart(productId);
+                return;
+            }
+            
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity = newQuantity;
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+                loadCart();
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            loadCart();
+        }
+
+        function checkout() {
+            if (!currentUser) {
+                showToast('Please login to continue with checkout');
+                showPage('login');
+                return;
+            }
+            
+            showToast('Checkout functionality would be implemented here');
+        }
+
+        // Authentication
+        function updateAuthButton() {
+            const authBtn = document.getElementById('auth-btn');
+            if (currentUser) {
+                authBtn.textContent = currentUser.name;
+                authBtn.onclick = () => showPage('login');
+            } else {
+                authBtn.textContent = 'Login';
+                authBtn.onclick = () => showPage('login');
+            }
+            
+            // Update login page view
+            if (currentUser) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('register-form').style.display = 'none';
+                document.getElementById('account-dashboard').style.display = 'block';
+                document.getElementById('user-email').textContent = currentUser.email;
+            } else {
+                document.getElementById('login-form').style.display = 'block';
+                document.getElementById('register-form').style.display = 'none';
+                document.getElementById('account-dashboard').style.display = 'none';
+            }
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const email = formData.get('email') || event.target.elements[0].value;
+            const password = formData.get('password') || event.target.elements[1].value;
+            
+            // Simulate login
+            currentUser = { name: email.split('@')[0], email: email };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateAuthButton();
+            showToast('Login successful!');
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const name = formData.get('name') || event.target.elements[0].value;
+            const email = formData.get('email') || event.target.elements[1].value;
+            
+            // Simulate registration
+            currentUser = { name: name, email: email };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateAuthButton();
+            showToast('Registration successful!');
+        }
+
+        function showLogin() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('register-form').style.display = 'none';
+        }
+
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateAuthButton();
+            showToast('Logged out successfully');
+            showPage('home');
+        }
+
+        // Admin functionality
+        function loadAdminProducts() {
+            const productsList = document.getElementById('admin-products-list');
+            const totalProducts = document.getElementById('total-products');
+            
+            totalProducts.textContent = products.length;
+            
+            productsList.innerHTML = `
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left">Product</th>
+                            <th class="px-4 py-2 text-left">Category</th>
+                            <th class="px-4 py-2 text-left">Brand</th>
+                            <th class="px-4 py-2 text-left">Price</th>
+                            <th class="px-4 py-2 text-left">Stock</th>
+                            <th class="px-4 py-2 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products.map(product => `
+                            <tr class="border-b">
+                                <td class="px-4 py-2">
+                                    <div>
+                                        <div class="font-semibold">${product.name}</div>
+                                        <div class="text-sm text-gray-500">${product.partNumber}</div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2 capitalize">${product.category}</td>
+                                <td class="px-4 py-2">${product.brand}</td>
+                                <td class="px-4 py-2">$${product.price}</td>
+                                <td class="px-4 py-2">${product.stock}</td>
+                                <td class="px-4 py-2">
+                                    <button onclick="editProduct(${product.id})" class="text-blue-600 hover:text-blue-800 mr-2">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="deleteProduct(${product.id})" class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function showAddProduct() {
+            editingProductId = null;
+            document.getElementById('modal-title').textContent = 'Add New Product';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            editingProductId = productId;
+            document.getElementById('modal-title').textContent = 'Edit Product';
+            
+            const form = document.getElementById('product-form');
+            form.elements.name.value = product.name;
+            form.elements.category.value = product.category;
+            form.elements.brand.value = product.brand;
+            form.elements.price.value = product.price;
+            form.elements.stock.value = product.stock;
+            form.elements.partNumber.value = product.partNumber;
+            form.elements.description.value = product.description;
+            
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            const productData = {
+                name: formData.get('name'),
+                category: formData.get('category'),
+                brand: formData.get('brand'),
+                price: parseFloat(formData.get('price')),
+                stock: parseInt(formData.get('stock')),
+                partNumber: formData.get('partNumber'),
+                description: formData.get('description'),
+                rating: 4.0,
+                featured: false
+            };
+            
+            if (editingProductId) {
+                // Edit existing product
+                const productIndex = products.findIndex(p => p.id === editingProductId);
+                products[productIndex] = { ...products[productIndex], ...productData };
+                showToast('Product updated successfully!');
+            } else {
+                // Add new product
+                const newId = Math.max(...products.map(p => p.id)) + 1;
+                products.push({ id: newId, ...productData });
+                showToast('Product added successfully!');
+            }
+            
+            localStorage.setItem('products', JSON.stringify(products));
+            filteredProducts = [...products];
+            loadAdminProducts();
+            closeProductModal();
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                products = products.filter(p => p.id !== productId);
+                localStorage.setItem('products', JSON.stringify(products));
+                filteredProducts = [...products];
+                loadAdminProducts();
+                showToast('Product deleted successfully!');
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        // Contact form
+        function handleContact(event) {
+            event.preventDefault();
+            showToast('Thank you for your message! We will get back to you soon.');
+            event.target.reset();
+        }
+
+        // Utility functions
+        function showToast(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
